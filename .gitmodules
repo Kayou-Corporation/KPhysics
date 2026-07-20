@@ -1,3 +1,9 @@
 [submodule "Libs/KUtils"]
 	path = Libs/KUtils
 	url = https://github.com/Kayou-Corporation/KUtils.git
+[submodule "Libs/glm"]
+	path = Libs/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Libs/KThreads"]
+	path = Libs/KThreads
+	url = https://github.com/Kayou-Corporation/KThreads

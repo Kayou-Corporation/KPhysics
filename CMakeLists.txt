@@ -70,7 +70,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #            DEFAULT ENGINE             #
 #---------------------------------------#
 target_include_directories(${KP_TARGET_NAME} PUBLIC ${KP_INCLUDE_PATH})
-target_link_libraries(${KP_TARGET_NAME} PUBLIC KUtils)
+target_link_libraries(${KP_TARGET_NAME} PUBLIC KUtils glm::glm KThreads)
 
 #---------------------------------------#
 #        EXPORTS / IMPORTS FOR DLL      #
