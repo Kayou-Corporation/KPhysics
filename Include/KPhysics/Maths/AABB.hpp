@@ -8,6 +8,7 @@ BEGIN_NAMESPACE_KAYOU
 
 struct AABB
 {
+    AABB() = default;
     AABB(const Vec3& min, const Vec3& max) : min(min), max(max) {}
 
     Vec3 min = Vec3(FLT_MAX, FLT_MAX, FLT_MAX);

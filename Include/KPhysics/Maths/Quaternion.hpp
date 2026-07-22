@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 BEGIN_NAMESPACE_KAYOU
@@ -25,7 +26,7 @@ inline Quat AngleAxis(const float angle, const Vec3& axis)
 
 inline Quat FromEuler(const Vec3& euler)
 {
-    return glm::quat(euler);
+    return { euler };
 }
 
 inline float Length(const Quat& q)

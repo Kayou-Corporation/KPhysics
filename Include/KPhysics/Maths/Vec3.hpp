@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 
 BEGIN_NAMESPACE_KAYOU
