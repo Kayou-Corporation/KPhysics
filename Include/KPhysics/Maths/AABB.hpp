@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "KPhysics/KPhysics.hpp"
+#include "KPhysics/Utils.hpp"
 #include "Vec3.hpp"
 #include "Scalar.hpp"
 

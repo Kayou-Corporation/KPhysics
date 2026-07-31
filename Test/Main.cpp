@@ -8,9 +8,22 @@
 #include "KPhysics/Maths/Vec3.hpp"
 #include "KPhysics/Maths/Vec4.hpp"
 #include "KPhysics/Maths/Scalar.hpp"
+#include "KPhysics/KPhysics.hpp"
+
+USING_KAYOU
 
 int main()
 {
-    std::cout << "Hello, Kayou!\n";
+    PhysicsWorld* world = new PhysicsWorld();
+    BodyID id = world->CreateBody(Vec3(0.f), QuatIdentity(), 10.f);
+
+    for (int i = 0; i < 100; ++i)
+    {
+        world->Step(1.f / 60.f);
+        Vec3 pos = world->GetBodyPosition(id);
+        std::cout << pos.x << " " << pos.y << " " << pos.z << '\n';
+    }
+
+    delete world;
     return 0;
 }

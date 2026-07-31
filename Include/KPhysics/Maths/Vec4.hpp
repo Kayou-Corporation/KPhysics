@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "KPhysics/KPhysics.hpp"
+#include "KPhysics/Utils.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/vec4.hpp>
