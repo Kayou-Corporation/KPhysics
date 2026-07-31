@@ -17,6 +17,8 @@ int main()
     PhysicsWorld* world = new PhysicsWorld();
     BodyID id = world->CreateBody(Vec3(0.f), QuatIdentity(), 10.f);
 
+    world->AddLinearImpulse(id, Vec3(2.f, 20.f, 4.f));
+
     for (int i = 0; i < 100; ++i)
     {
         world->Step(1.f / 60.f);

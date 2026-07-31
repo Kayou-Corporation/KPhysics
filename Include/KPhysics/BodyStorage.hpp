@@ -46,17 +46,20 @@ struct MassStorage
 {
     Array<float> inverseMasses;
     Array<Mat3> inverseInertias;
+    Array<Mat3> inverseInertiasWorld;
 
     explicit MassStorage(uint32_t capacity)
     {
         inverseMasses.reserve(capacity);
         inverseInertias.reserve(capacity);
+        inverseInertiasWorld.reserve(capacity);
     }
 
     ~MassStorage()
     {
         inverseMasses.clear();
         inverseInertias.clear();
+        inverseInertiasWorld.clear();
     }
 };
 
