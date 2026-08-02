@@ -9,10 +9,15 @@ PhysicsWorld::PhysicsWorld(uint32_t preallocatedBodies, float gravity) : m_bodyS
 
 void PhysicsWorld::Step(float dt)
 {
-    UpdateWorldInertia();
     Gravity();
+
     IntegrateVelocities(dt);
+
     IntegratePositions(dt);
+    IntegrateRotations(dt);
+
+    UpdateWorldInertia();
+
     ClearForces();
     ClearTorques();
 }
@@ -40,21 +45,24 @@ BodyID PhysicsWorld::CreateBody(const Vec3& position, const Quat& rotation, floa
 void PhysicsWorld::AddLinearImpulse(const BodyID id, const Vec3& impulse)
 {
     const float invMass = m_bodyStorage.masses.inverseMasses[id];
-    if (invMass == 0.0f)
+    if (invMass <= 0.0f)
         return;
 
     m_bodyStorage.velocities.linear[id] += impulse * invMass;
 }
 
-void PhysicsWorld::AddAngularImpulse(BodyID id, const Vec3& impulse)
+void PhysicsWorld::AddAngularImpulse(const BodyID id, const Vec3& impulse)
 {
-    const Mat3& invInertia = m_bodyStorage.masses.inverseInertias[id];
-    m_bodyStorage.velocities.angular[id] += invInertia * impulse;
+    if (m_bodyStorage.masses.inverseMasses[id] <= 0.0f)
+        return;
+
+    const Mat3& invInertiaWorld = m_bodyStorage.masses.inverseInertiasWorld[id];
+    m_bodyStorage.velocities.angular[id] += invInertiaWorld * impulse;
 }
 
-void PhysicsWorld::AddTorque(BodyID id, const Vec3& torque)
+void PhysicsWorld::AddTorque(const BodyID id, const Vec3& torque)
 {
-    if (m_bodyStorage.masses.inverseMasses[id] == 0.0f)
+    if (m_bodyStorage.masses.inverseMasses[id] <= 0.0f)
         return;
 
     m_bodyStorage.forces.torques[id] += torque;
@@ -62,7 +70,7 @@ void PhysicsWorld::AddTorque(BodyID id, const Vec3& torque)
 
 void PhysicsWorld::AddForce(const BodyID id, const Vec3& force)
 {
-    if (m_bodyStorage.masses.inverseMasses[id] == 0.0f)
+    if (m_bodyStorage.masses.inverseMasses[id] <= 0.0f)
         return;
 
     m_bodyStorage.forces.forces[id] += force;
@@ -84,7 +92,7 @@ void PhysicsWorld::Gravity()
     for (size_t i = 0; i < m_bodyStorage.forces.forces.size(); ++i)
     {
         const float invMass = m_bodyStorage.masses.inverseMasses[i];
-        if (invMass == 0.0f)
+        if (invMass <= 0.0f)
             continue;
 
         const float mass = 1.0f / invMass;
@@ -97,11 +105,14 @@ void PhysicsWorld::IntegrateVelocities(const float dt)
     for (size_t i = 0; i < m_bodyStorage.velocities.linear.size(); ++i)
     {
         const float invMass = m_bodyStorage.masses.inverseMasses[i];
-        if (invMass == 0.0f)
+        if (invMass <= 0.0f)
             continue;
 
-        Vec3 acceleration = m_bodyStorage.forces.forces[i] * invMass;
-        m_bodyStorage.velocities.linear[i] += acceleration * dt;
+        Vec3 linearAcceleration = m_bodyStorage.forces.forces[i] * invMass;
+        m_bodyStorage.velocities.linear[i] += linearAcceleration * dt;
+
+        Vec3 angularAcceleration = m_bodyStorage.masses.inverseInertiasWorld[i] * m_bodyStorage.forces.torques[i];
+        m_bodyStorage.velocities.angular[i] += angularAcceleration * dt;
     }
 }
 
@@ -110,6 +121,22 @@ void PhysicsWorld::IntegratePositions(const float dt)
     for (size_t i = 0; i < m_bodyStorage.transforms.positions.size(); ++i)
     {
         m_bodyStorage.transforms.positions[i] += m_bodyStorage.velocities.linear[i] * dt;
+    }
+}
+
+void PhysicsWorld::IntegrateRotations(const float dt)
+{
+    for (size_t i = 0; i < m_bodyStorage.transforms.rotations.size(); ++i)
+    {
+        const Vec3& angularVelocity = m_bodyStorage.velocities.angular[i];
+        if (LengthSquared(angularVelocity) <= 0.f)
+            continue;
+
+        Quat w = {0.f, angularVelocity.x, angularVelocity.y, angularVelocity.z};
+        Quat& q = m_bodyStorage.transforms.rotations[i];
+
+        q = 0.5f * (w * q) * dt;
+        q = Normalize(q);
     }
 }
 

@@ -15,7 +15,10 @@ project(Physics VERSION 1.0.0 LANGUAGES CXX)
 #            BUILD MODE                 #
 #---------------------------------------#
 
-add_executable(KPhysics_TEST "Main.cpp")
+list(APPEND KPhysics_TEST_SOURCES "glad/src/glad.c")
+list(APPEND KPhysics_TEST_SOURCES "Main.cpp")
+
+add_executable(KPhysics_TEST ${KPhysics_TEST_SOURCES})
 
 
 
@@ -41,3 +44,5 @@ set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 target_link_libraries(KPhysics_TEST PRIVATE KPhysics)
+
+target_include_directories(KPhysics_TEST PRIVATE "glad/include")

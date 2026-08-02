@@ -40,6 +40,7 @@ private:
     void Gravity();
     void IntegrateVelocities(float dt);
     void IntegratePositions(float dt);
+    void IntegrateRotations(float dt);
     void ClearForces();
     void ClearTorques();
 
