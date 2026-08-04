@@ -4,18 +4,10 @@
 
 #include "Utils.hpp"
 #include "BodyStorage.hpp"
+#include "ColliderStorage.hpp"
 #include "Preprocessor.hpp"
 
 BEGIN_NAMESPACE_KAYOU
-
-using BodyID = uint32_t;
-
-enum class ShapeType
-{
-    SPHERE,
-    BOX,
-    NONE
-};
 
 class PhysicsWorld
 {
@@ -34,6 +26,7 @@ public:
 
 private:
     BodyStorage m_bodyStorage;
+    ColliderStorage m_colliderStorage;
     float m_gravity = 0.0f;
 
     void UpdateWorldInertia();

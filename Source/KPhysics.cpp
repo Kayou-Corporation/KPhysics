@@ -2,7 +2,9 @@
 
 BEGIN_NAMESPACE_KAYOU
 
-PhysicsWorld::PhysicsWorld(uint32_t preallocatedBodies, float gravity) : m_bodyStorage(preallocatedBodies), m_gravity(gravity)
+PhysicsWorld::PhysicsWorld(uint32_t preallocatedBodies, const float gravity) : m_bodyStorage(preallocatedBodies),
+                                                                         m_colliderStorage(preallocatedBodies),
+                                                                         m_gravity(gravity)
 {
 
 }

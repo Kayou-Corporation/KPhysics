@@ -8,10 +8,7 @@ BEGIN_NAMESPACE_KAYOU
 
 struct TransformStorage
 {
-    Array<Vec3> positions;
-    Array<Quat> rotations;
-
-    explicit TransformStorage(uint32_t capacity)
+    explicit TransformStorage(const uint32_t capacity)
     {
         positions.reserve(capacity);
         rotations.reserve(capacity);
@@ -22,14 +19,14 @@ struct TransformStorage
         positions.clear();
         rotations.clear();
     }
+
+    Array<Vec3> positions;
+    Array<Quat> rotations;
 };
 
 struct VelocityStorage
 {
-    Array<Vec3> linear;
-    Array<Vec3> angular;
-
-    explicit VelocityStorage(uint32_t capacity)
+    explicit VelocityStorage(const uint32_t capacity)
     {
         linear.reserve(capacity);
         angular.reserve(capacity);
@@ -40,15 +37,14 @@ struct VelocityStorage
         linear.clear();
         angular.clear();
     }
+
+    Array<Vec3> linear;
+    Array<Vec3> angular;
 };
 
 struct MassStorage
 {
-    Array<float> inverseMasses;
-    Array<Mat3> inverseInertias;
-    Array<Mat3> inverseInertiasWorld;
-
-    explicit MassStorage(uint32_t capacity)
+    explicit MassStorage(const uint32_t capacity)
     {
         inverseMasses.reserve(capacity);
         inverseInertias.reserve(capacity);
@@ -61,14 +57,15 @@ struct MassStorage
         inverseInertias.clear();
         inverseInertiasWorld.clear();
     }
+
+    Array<float> inverseMasses;
+    Array<Mat3> inverseInertias;
+    Array<Mat3> inverseInertiasWorld;
 };
 
 struct ForceStorage
 {
-    Array<Vec3> forces;
-    Array<Vec3> torques;
-
-    explicit ForceStorage(uint32_t capacity)
+    explicit ForceStorage(const uint32_t capacity)
     {
         forces.reserve(capacity);
         torques.reserve(capacity);
@@ -79,18 +76,31 @@ struct ForceStorage
         forces.clear();
         torques.clear();
     }
+
+    Array<Vec3> forces;
+    Array<Vec3> torques;
 };
 
 class BodyStorage
 {
 public:
-    explicit BodyStorage(uint32_t capacity)
-        : transforms(capacity), velocities(capacity), masses(capacity), forces(capacity), capacity{capacity} {}
+    explicit BodyStorage(const uint32_t capacity)
+        : transforms(capacity), velocities(capacity), masses(capacity), forces(capacity), capacity{capacity}
+    {
+        colliders.reserve(capacity);
+    }
+
+    ~BodyStorage()
+    {
+        colliders.clear();
+    }
 
     TransformStorage transforms;
     VelocityStorage velocities;
     MassStorage masses;
     ForceStorage forces;
+
+    Array<ColliderID> colliders;
 
     uint32_t capacity;
 
