@@ -18,7 +18,7 @@ enum class ShapeType : uint8_t
 struct ShapeReference
 {
     ShapeType type;
-    uint32_t index;
+    ShapeID index;
 };
 
 struct SphereStorage

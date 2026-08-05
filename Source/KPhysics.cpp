@@ -36,12 +36,64 @@ BodyID PhysicsWorld::CreateBody(const Vec3& position, const Quat& rotation, floa
 
     const float invMass = (mass > 0.0f) ? 1.0f / mass : 0.0f;
     m_bodyStorage.masses.inverseMasses.push_back(invMass);
-    m_bodyStorage.masses.inverseInertias.push_back(Mat3(1.f));
+    m_bodyStorage.masses.inverseInertias.emplace_back(1.f);
 
     m_bodyStorage.forces.forces.emplace_back(0.0f);
     m_bodyStorage.forces.torques.emplace_back(0.0f);
 
     return id;
+}
+
+void PhysicsWorld::AddSphereCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
+    const float radius)
+{
+    AddCollider(bodyID, positionOffset, rotationOffset);
+
+    m_colliderStorage.spheres.radii.push_back(radius);
+
+    const ShapeID sphereID = static_cast<ShapeID>(m_colliderStorage.spheres.radii.size() - 1);
+    m_colliderStorage.shapes.emplace_back(ShapeType::SPHERE, sphereID);
+
+    const float invMass = m_bodyStorage.masses.inverseMasses[bodyID];
+    if (invMass <= 0.0f)
+        return;
+
+    m_bodyStorage.masses.inverseInertias[bodyID] = ComputeSphereInverseInertia(invMass, radius);
+}
+
+void PhysicsWorld::AddBoxCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
+    const Vec3& halfExtents)
+{
+    AddCollider(bodyID, positionOffset, rotationOffset);
+
+    m_colliderStorage.boxes.halfExtents.push_back(halfExtents);
+
+    const ShapeID boxID = static_cast<ShapeID>(m_colliderStorage.boxes.halfExtents.size() - 1);
+    m_colliderStorage.shapes.emplace_back(ShapeType::BOX, boxID);
+
+    const float invMass = m_bodyStorage.masses.inverseMasses[bodyID];
+    if (invMass <= 0.0f)
+        return;
+
+    m_bodyStorage.masses.inverseInertias[bodyID] = ComputeBoxInverseInertia(invMass, halfExtents);
+}
+
+void PhysicsWorld::AddCapsuleCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
+    const float radius, const float halfHeight)
+{
+    AddCollider(bodyID, positionOffset, rotationOffset);
+
+    m_colliderStorage.capsules.radii.push_back(radius);
+    m_colliderStorage.capsules.halfHeights.push_back(halfHeight);
+
+    const ShapeID capsuleID = static_cast<ShapeID>(m_colliderStorage.capsules.radii.size() - 1);
+    m_colliderStorage.shapes.emplace_back(ShapeType::CAPSULE, capsuleID);
+
+    const float invMass = m_bodyStorage.masses.inverseMasses[bodyID];
+    if (invMass <= 0.0f)
+        return;
+
+    m_bodyStorage.masses.inverseInertias[bodyID] = ComputeCapsuleInverseInertia(invMass, radius, halfHeight);
 }
 
 void PhysicsWorld::AddLinearImpulse(const BodyID id, const Vec3& impulse)
@@ -82,6 +134,9 @@ void PhysicsWorld::UpdateWorldInertia()
 {
     for (BodyID i = 0; i < static_cast<BodyID>(m_bodyStorage.masses.inverseInertias.size()); ++i)
     {
+        if (m_bodyStorage.masses.inverseMasses[i] <= 0.0f)
+            return;
+
         Mat3 rotation = ToMat3(m_bodyStorage.transforms.rotations[i]);
         m_bodyStorage.masses.inverseInertiasWorld[i] = rotation * m_bodyStorage.masses.inverseInertias[i] * Transpose(rotation);
     }
@@ -156,6 +211,13 @@ void PhysicsWorld::ClearTorques()
     {
         m_bodyStorage.forces.torques[i] = Vec3(0.0f);
     }
+}
+
+void PhysicsWorld::AddCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset)
+{
+    m_colliderStorage.bodies.push_back(bodyID);
+    m_colliderStorage.localPositions.push_back(positionOffset);
+    m_colliderStorage.localRotations.push_back(rotationOffset);
 }
 
 END_NAMESPACE_KAYOU

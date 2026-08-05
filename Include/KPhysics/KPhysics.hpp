@@ -16,6 +16,9 @@ public:
 
     void Step(float dt);
     BodyID CreateBody(const Vec3& position, const Quat& rotation, float mass);
+    void AddSphereCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius);
+    void AddBoxCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, const Vec3& halfExtents);
+    void AddCapsuleCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius, float halfHeight);
 
     void AddLinearImpulse(BodyID id, const Vec3& impulse);
     void AddAngularImpulse(BodyID id, const Vec3& impulse);
@@ -36,6 +39,8 @@ private:
     void IntegrateRotations(float dt);
     void ClearForces();
     void ClearTorques();
+
+    void AddCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset);
 
 };
 
