@@ -12,33 +12,33 @@
 BEGIN_NAMESPACE_KAYOU
     using Mat3 = glm::mat3;
 
-inline Mat3 Mat3Identity()
+KINLINE Mat3 Mat3Identity()
 {
     return glm::identity<Mat3>();
 }
 
-inline Mat3 Transpose(const Mat3& matrix)
+KINLINE Mat3 Transpose(const Mat3& matrix)
 {
     return glm::transpose(matrix);
 }
 
-inline Mat3 Inverse(const Mat3& matrix)
+KINLINE Mat3 Inverse(const Mat3& matrix)
 {
     return glm::inverse(matrix);
 }
 
-inline float Determinant(const Mat3& matrix)
+KINLINE float Determinant(const Mat3& matrix)
 {
     return glm::determinant(matrix);
 }
 
-inline Mat3 ComputeSphereInverseInertia(const float invMass, const float radius)
+KINLINE Mat3 ComputeSphereInverseInertia(const float invMass, const float radius)
 {
     const float invI = (5.f * invMass) / (2.f * radius * radius);
     return {invI};
 }
 
-inline Mat3 ComputeBoxInverseInertia(const float invMass, const Vec3& halfExtents)
+KINLINE Mat3 ComputeBoxInverseInertia(const float invMass, const Vec3& halfExtents)
 {
     const float width = halfExtents.x * 2.0f;
     const float height = halfExtents.y * 2.0f;
@@ -55,7 +55,7 @@ inline Mat3 ComputeBoxInverseInertia(const float invMass, const Vec3& halfExtent
     return invInertia;
 }
 
-inline Mat3 ComputeCapsuleInverseInertia(const float invMass, const float radius, const float halfHeight)
+KINLINE Mat3 ComputeCapsuleInverseInertia(const float invMass, const float radius, const float halfHeight)
 {
     const float height = halfHeight * 2.0f;
 

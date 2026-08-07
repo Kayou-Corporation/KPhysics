@@ -15,7 +15,7 @@ struct AABB
     Vec3 max = Vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 };
 
-inline AABB ComputeAABB(const Vec3& pos, const Vec3& scale)
+KINLINE AABB ComputeAABB(const Vec3& pos, const Vec3& scale)
 {
     AABB box;
     box.min = pos - (0.5f * scale);
@@ -23,7 +23,7 @@ inline AABB ComputeAABB(const Vec3& pos, const Vec3& scale)
     return box;
 }
 
-inline AABB ComputeAABB(const std::vector<Vec3>& points)
+KINLINE AABB ComputeAABB(const std::vector<Vec3>& points)
 {
     AABB box;
     for (const Vec3& point : points)
@@ -34,7 +34,7 @@ inline AABB ComputeAABB(const std::vector<Vec3>& points)
     return box;
 }
 
-inline AABB MergeBoxes(const AABB& box1, const AABB& box2)
+KINLINE AABB MergeBoxes(const AABB& box1, const AABB& box2)
 {
     AABB box;
     box.min = Min(box1.min, box2.min);
@@ -42,22 +42,22 @@ inline AABB MergeBoxes(const AABB& box1, const AABB& box2)
     return box;
 }
 
-inline Vec3 GetBoxCenter(const AABB& box)
+KINLINE Vec3 GetBoxCenter(const AABB& box)
 {
     return box.min + (box.max - box.min) * 0.5f;
 }
 
-inline Vec3 GetBoxSize(const AABB& box)
+KINLINE Vec3 GetBoxSize(const AABB& box)
 {
     return box.max - box.min;
 }
 
-inline Vec3 GetBoxHalfExtents(const AABB& box)
+KINLINE Vec3 GetBoxHalfExtents(const AABB& box)
 {
     return GetBoxSize(box) * 0.5f;
 }
 
-inline float GetBoxVolume(const AABB& box)
+KINLINE float GetBoxVolume(const AABB& box)
 {
     const Vec3 minPos = box.min;
     const Vec3 maxPos = box.max;
@@ -69,7 +69,7 @@ inline float GetBoxVolume(const AABB& box)
     return dx * dy * dz;
 }
 
-inline float BoxSurfaceArea(const AABB& box)
+KINLINE float BoxSurfaceArea(const AABB& box)
 {
     const Vec3 size = box.max - box.min;
 
@@ -79,14 +79,14 @@ inline float BoxSurfaceArea(const AABB& box)
         size.y * size.z);
 }
 
-inline float GetBoxUnionCost(const AABB& box1, const AABB& box2)
+KINLINE float GetBoxUnionCost(const AABB& box1, const AABB& box2)
 {
     const float unionArea = BoxSurfaceArea(MergeBoxes(box1, box2));
     const float cost = unionArea - BoxSurfaceArea(box1);
     return cost;
 }
 
-inline bool CheckBoxIntersection(const AABB& box1, const AABB& box2)
+KINLINE bool CheckBoxIntersection(const AABB& box1, const AABB& box2)
 {
     return
         box1.min.x <= box2.max.x &&
@@ -99,33 +99,33 @@ inline bool CheckBoxIntersection(const AABB& box1, const AABB& box2)
         box1.max.z >= box2.min.z;
 }
 
-inline bool BoxContains(const AABB& box, const Vec3& point)
+KINLINE bool BoxContains(const AABB& box, const Vec3& point)
 {
     return box.min.x <= point.x && point.x <= box.max.x && box.min.y <= point.y && point.y <= box.max.y && box.min.z <= point.z && point.z <= box.max.z;
 }
 
-inline bool BoxContains(const AABB& bigBox, const AABB& box)
+KINLINE bool BoxContains(const AABB& bigBox, const AABB& box)
 {
     return BoxContains(bigBox, box.min) && BoxContains(bigBox, box.max);
 }
 
-inline AABB ExpandBox(const AABB& box, const float amount)
+KINLINE AABB ExpandBox(const AABB& box, const float amount)
 {
     return AABB(box.min - amount, box.max + amount);
 }
 
-inline Vec3 ClosestPointFromBox(const AABB& box, const Vec3& point)
+KINLINE Vec3 ClosestPointFromBox(const AABB& box, const Vec3& point)
 {
     return Vec3(Clamp(point.x, box.min.x, box.max.x), Clamp(point.y, box.min.y, box.max.y), Clamp(point.z, box.min.z, box.max.z));
 }
 
-inline float DistanceFromBoxSquared(const AABB& box, const Vec3& point)
+KINLINE float DistanceFromBoxSquared(const AABB& box, const Vec3& point)
 {
     const Vec3 closestPoint = ClosestPointFromBox(box, point);
     return LengthSquared(closestPoint - point);
 }
 
-inline bool IsBoxValid(const AABB& box)
+KINLINE bool IsBoxValid(const AABB& box)
 {
     return
         box.min.x <= box.max.x &&

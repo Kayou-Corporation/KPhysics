@@ -9,6 +9,8 @@
 #include <vector>
 #include <cstdint>
 
+#include "Preprocessor.hpp"
+
 template<typename T>
 using Array = std::vector<T>;
 

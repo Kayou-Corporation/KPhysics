@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Preprocessor.hpp"
 #include "Utils.hpp"
 
 BEGIN_NAMESPACE_KAYOU
@@ -23,17 +24,17 @@ public:
         m_value = (generation << GENERATION_NUMBER_SHIFT) | index;
     }
 
-    uint32_t Index() const
+    KNO_DISCARD uint32_t Index() const
     {
         return m_value & MAX_BODY_ID;
     }
 
-    uint8_t Generation() const
+    KNO_DISCARD uint8_t Generation() const
     {
         return static_cast<uint8_t>(m_value >> GENERATION_NUMBER_SHIFT);
     }
 
-    bool IsValid() const
+    KNO_DISCARD bool IsValid() const
     {
         return m_value != INVALID;
     }
