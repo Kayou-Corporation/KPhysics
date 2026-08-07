@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include <queue>
+
+#include "BodyID.hpp"
 #include "Maths/Mat3.hpp"
 #include "Maths/Quaternion.hpp"
 #include "Maths/Vec3.hpp"
@@ -88,6 +91,7 @@ public:
         : transforms(capacity), velocities(capacity), masses(capacity), forces(capacity), capacity{capacity}
     {
         colliders.reserve(capacity);
+        generations.reserve(capacity);
     }
 
     ~BodyStorage()
@@ -103,6 +107,9 @@ public:
     Array<ColliderID> colliders;
 
     uint32_t capacity;
+
+    std::queue<uint32_t> availableIndices;
+    Array<uint8_t> generations;
 
     //Array<BodyFlags> flags;
     //Array<ColliderID> colliders;

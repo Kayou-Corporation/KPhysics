@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <cstdint>
 
-#include "KPhysics.hpp"
+#include "BodyID.hpp"
 #include "Maths/Quaternion.hpp"
 #include "Maths/Vec3.hpp"
 

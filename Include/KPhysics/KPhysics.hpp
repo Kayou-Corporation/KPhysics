@@ -16,6 +16,7 @@ public:
 
     void Step(float dt);
     BodyID CreateBody(const Vec3& position, const Quat& rotation, float mass);
+    void DestroyBody(BodyID& bodyID); // Invalidates the BodyID passed as reference
     void AddSphereCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius);
     void AddBoxCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, const Vec3& halfExtents);
     void AddCapsuleCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius, float halfHeight);
@@ -25,7 +26,7 @@ public:
     void AddForce(BodyID id, const Vec3& force);
     void AddTorque(BodyID id, const Vec3& torque);
 
-    KNO_DISCARD Vec3 GetBodyPosition(const BodyID bodyID) const { return m_bodyStorage.transforms.positions[bodyID]; }
+    KNO_DISCARD Vec3 GetBodyPosition(const BodyID bodyID) const { return m_bodyStorage.transforms.positions[bodyID.Index()]; }
 
 private:
     BodyStorage m_bodyStorage;

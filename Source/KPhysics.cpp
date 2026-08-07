@@ -26,26 +26,67 @@ void PhysicsWorld::Step(float dt)
 
 BodyID PhysicsWorld::CreateBody(const Vec3& position, const Quat& rotation, float mass)
 {
-    const BodyID id = static_cast<BodyID>(m_bodyStorage.transforms.positions.size());
+    uint32_t index;
 
-    m_bodyStorage.transforms.positions.push_back(position);
-    m_bodyStorage.transforms.rotations.push_back(rotation);
+    if (!m_bodyStorage.availableIndices.empty())
+    {
+        index = m_bodyStorage.availableIndices.front();
+        m_bodyStorage.availableIndices.pop();
+    }
+    else
+    {
+        index = static_cast<uint32_t>(m_bodyStorage.transforms.positions.size());
 
-    m_bodyStorage.velocities.linear.emplace_back(0.0f);
-    m_bodyStorage.velocities.angular.emplace_back(0.0f);
+        if (index >= BodyID::MAX_BODY_ID)
+            return BodyID(BodyID::INVALID);
+
+        m_bodyStorage.transforms.positions.emplace_back();
+        m_bodyStorage.transforms.rotations.emplace_back();
+
+        m_bodyStorage.velocities.linear.emplace_back();
+        m_bodyStorage.velocities.angular.emplace_back();
+
+        m_bodyStorage.masses.inverseMasses.emplace_back();
+        m_bodyStorage.masses.inverseInertias.emplace_back();
+
+        m_bodyStorage.forces.forces.emplace_back();
+        m_bodyStorage.forces.torques.emplace_back();
+
+        m_bodyStorage.generations.push_back(0);
+    }
+
+    m_bodyStorage.transforms.positions[index] = position;
+    m_bodyStorage.transforms.rotations[index] = rotation;
+
+    m_bodyStorage.velocities.linear[index] = Vec3(0.0f);
+    m_bodyStorage.velocities.angular[index] = Vec3(0.0f);
 
     const float invMass = (mass > 0.0f) ? 1.0f / mass : 0.0f;
-    m_bodyStorage.masses.inverseMasses.push_back(invMass);
-    m_bodyStorage.masses.inverseInertias.emplace_back(1.f);
+    m_bodyStorage.masses.inverseMasses[index] = invMass;
+    m_bodyStorage.masses.inverseInertias[index] = Mat3(1.0f);
 
-    m_bodyStorage.forces.forces.emplace_back(0.0f);
-    m_bodyStorage.forces.torques.emplace_back(0.0f);
+    m_bodyStorage.forces.forces[index] = Vec3(0.0f);
+    m_bodyStorage.forces.torques[index] = Vec3(0.0f);
 
-    return id;
+    return BodyID(index, m_bodyStorage.generations[index]);
+}
+
+void PhysicsWorld::DestroyBody(BodyID& bodyID)
+{
+    const uint32_t index = bodyID.Index();
+    const uint8_t generation = bodyID.Generation();
+
+    if (m_bodyStorage.generations[index] != generation)
+        return;
+
+    m_bodyStorage.availableIndices.push(index);
+    m_bodyStorage.generations[index] = (generation + 1) & 0xFF;
+
+    bodyID = BodyID(BodyID::INVALID);
 }
 
 void PhysicsWorld::AddSphereCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
-    const float radius)
+                                     const float radius)
 {
     AddCollider(bodyID, positionOffset, rotationOffset);
 

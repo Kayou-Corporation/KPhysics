@@ -12,6 +12,5 @@
 template<typename T>
 using Array = std::vector<T>;
 
-using BodyID = uint32_t;
 using ColliderID = uint32_t;
 using ShapeID = uint32_t;
