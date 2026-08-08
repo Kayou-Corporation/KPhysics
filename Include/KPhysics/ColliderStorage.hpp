@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <cstdint>
 
-#include "BodyID.hpp"
+#include "ID.hpp"
 #include "Maths/Quaternion.hpp"
 #include "Maths/Vec3.hpp"
 
@@ -34,6 +34,9 @@ struct SphereStorage
     }
 
     Array<float> radii;
+
+    std::queue<uint32_t> availableIndices;
+    Array<uint8_t> generations;
 };
 
 struct BoxStorage
@@ -49,6 +52,9 @@ struct BoxStorage
     }
 
     Array<Vec3> halfExtents;
+
+    std::queue<uint32_t> availableIndices;
+    Array<uint8_t> generations;
 };
 
 struct CapsuleStorage
@@ -67,6 +73,9 @@ struct CapsuleStorage
 
     Array<float> radii;
     Array<float> halfHeights;
+
+    std::queue<uint32_t> availableIndices;
+    Array<uint8_t> generations;
 };
 
 class ColliderStorage
@@ -99,6 +108,9 @@ public:
     SphereStorage spheres;
     BoxStorage boxes;
     CapsuleStorage capsules;
+
+    std::queue<uint32_t> availableIndices;
+    Array<uint8_t> generations;
 
     //Array<MaterialID> materials; later
 };

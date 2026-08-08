@@ -17,14 +17,14 @@ public:
     void Step(float dt);
     BodyID CreateBody(const Vec3& position, const Quat& rotation, float mass);
     void DestroyBody(BodyID& bodyID); // Invalidates the BodyID passed as reference
-    void AddSphereCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius);
-    void AddBoxCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, const Vec3& halfExtents);
-    void AddCapsuleCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius, float halfHeight);
+    ColliderID AddSphereCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius);
+    ColliderID AddBoxCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, const Vec3& halfExtents);
+    ColliderID AddCapsuleCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset, float radius, float halfHeight);
 
-    void AddLinearImpulse(BodyID id, const Vec3& impulse);
-    void AddAngularImpulse(BodyID id, const Vec3& impulse);
-    void AddForce(BodyID id, const Vec3& force);
-    void AddTorque(BodyID id, const Vec3& torque);
+    void AddLinearImpulse(BodyID bodyID, const Vec3& impulse);
+    void AddAngularImpulse(BodyID bodyID, const Vec3& impulse);
+    void AddForce(BodyID bodyID, const Vec3& force);
+    void AddTorque(BodyID bodyID, const Vec3& torque);
 
     KNO_DISCARD Vec3 GetBodyPosition(const BodyID bodyID) const { return m_bodyStorage.transforms.positions[bodyID.Index()]; }
 
@@ -41,7 +41,7 @@ private:
     void ClearForces();
     void ClearTorques();
 
-    void AddCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset);
+    KNO_DISCARD ColliderID AddCollider(BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset);
 
 };
 

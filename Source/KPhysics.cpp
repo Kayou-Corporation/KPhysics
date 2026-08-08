@@ -85,10 +85,13 @@ void PhysicsWorld::DestroyBody(BodyID& bodyID)
     bodyID = BodyID(BodyID::INVALID);
 }
 
-void PhysicsWorld::AddSphereCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
+ColliderID PhysicsWorld::AddSphereCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
                                      const float radius)
 {
-    AddCollider(bodyID, positionOffset, rotationOffset);
+    const ColliderID id = AddCollider(bodyID, positionOffset, rotationOffset);
+
+    if (!id)
+        return id;
 
     m_colliderStorage.spheres.radii.push_back(radius);
 
@@ -96,16 +99,19 @@ void PhysicsWorld::AddSphereCollider(const BodyID bodyID, const Vec3& positionOf
     m_colliderStorage.shapes.emplace_back(ShapeType::SPHERE, sphereID);
 
     const float invMass = m_bodyStorage.masses.inverseMasses[bodyID.Index()];
-    if (invMass <= 0.0f)
-        return;
+    if (invMass > 0.0f)
+        m_bodyStorage.masses.inverseInertias[bodyID.Index()] = ComputeSphereInverseInertia(invMass, radius);
 
-    m_bodyStorage.masses.inverseInertias[bodyID.Index()] = ComputeSphereInverseInertia(invMass, radius);
+    return id;
 }
 
-void PhysicsWorld::AddBoxCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
+ColliderID PhysicsWorld::AddBoxCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
     const Vec3& halfExtents)
 {
-    AddCollider(bodyID, positionOffset, rotationOffset);
+    const ColliderID id = AddCollider(bodyID, positionOffset, rotationOffset);
+
+    if (!id)
+        return id;
 
     m_colliderStorage.boxes.halfExtents.push_back(halfExtents);
 
@@ -114,15 +120,18 @@ void PhysicsWorld::AddBoxCollider(const BodyID bodyID, const Vec3& positionOffse
 
     const float invMass = m_bodyStorage.masses.inverseMasses[bodyID.Index()];
     if (invMass <= 0.0f)
-        return;
+        m_bodyStorage.masses.inverseInertias[bodyID.Index()] = ComputeBoxInverseInertia(invMass, halfExtents);
 
-    m_bodyStorage.masses.inverseInertias[bodyID.Index()] = ComputeBoxInverseInertia(invMass, halfExtents);
+    return id;
 }
 
-void PhysicsWorld::AddCapsuleCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
+ColliderID PhysicsWorld::AddCapsuleCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset,
     const float radius, const float halfHeight)
 {
-    AddCollider(bodyID, positionOffset, rotationOffset);
+    const ColliderID id = AddCollider(bodyID, positionOffset, rotationOffset);
+
+    if (!id)
+        return id;
 
     m_colliderStorage.capsules.radii.push_back(radius);
     m_colliderStorage.capsules.halfHeights.push_back(halfHeight);
@@ -131,10 +140,10 @@ void PhysicsWorld::AddCapsuleCollider(const BodyID bodyID, const Vec3& positionO
     m_colliderStorage.shapes.emplace_back(ShapeType::CAPSULE, capsuleID);
 
     const float invMass = m_bodyStorage.masses.inverseMasses[bodyID.Index()];
-    if (invMass <= 0.0f)
-        return;
+    if (invMass > 0.0f)
+        m_bodyStorage.masses.inverseInertias[bodyID.Index()] = ComputeCapsuleInverseInertia(invMass, radius, halfHeight);
 
-    m_bodyStorage.masses.inverseInertias[bodyID.Index()] = ComputeCapsuleInverseInertia(invMass, radius, halfHeight);
+    return id;
 }
 
 void PhysicsWorld::AddLinearImpulse(const BodyID bodyID, const Vec3& impulse)
@@ -254,11 +263,36 @@ void PhysicsWorld::ClearTorques()
     }
 }
 
-void PhysicsWorld::AddCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset)
+ColliderID PhysicsWorld::AddCollider(const BodyID bodyID, const Vec3& positionOffset, const Quat& rotationOffset)
 {
-    m_colliderStorage.bodies.push_back(bodyID);
-    m_colliderStorage.localPositions.push_back(positionOffset);
-    m_colliderStorage.localRotations.push_back(rotationOffset);
+    uint32_t index;
+
+    if (!m_colliderStorage.availableIndices.empty())
+    {
+        index = m_colliderStorage.availableIndices.front();
+        m_colliderStorage.availableIndices.pop();
+    }
+    else
+    {
+        index = static_cast<uint32_t>(m_colliderStorage.localPositions.size());
+
+        if (index >= ColliderID::MAX_BODY_ID)
+            return ColliderID(ColliderID::INVALID);
+
+        m_colliderStorage.bodies.emplace_back();
+
+        m_colliderStorage.localPositions.emplace_back();
+        m_colliderStorage.localRotations.emplace_back();
+
+        m_colliderStorage.generations.push_back(0);
+    }
+
+    m_colliderStorage.bodies[index] = bodyID;
+
+    m_colliderStorage.localPositions[index] = positionOffset;
+    m_colliderStorage.localRotations[index] = rotationOffset;
+
+    return ColliderID(index, m_colliderStorage.generations[index]);
 }
 
 END_NAMESPACE_KAYOU

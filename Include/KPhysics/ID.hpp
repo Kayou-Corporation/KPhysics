@@ -5,7 +5,8 @@
 
 BEGIN_NAMESPACE_KAYOU
 
-class BodyID
+template <typename Tag>
+class ID
 {
 public:
     static constexpr uint32_t INVALID = 0xFFFFFFFF;
@@ -13,13 +14,13 @@ public:
     static constexpr uint8_t MAX_GENERATION = 0xFF;
     static constexpr uint32_t GENERATION_NUMBER_SHIFT = 24;
 
-    BodyID() = default;
+    ID() = default;
 
-    explicit BodyID(const uint32_t value) : m_value(value)
+    explicit ID(const uint32_t value) : m_value(value)
     {
     }
 
-    explicit BodyID(const uint32_t index, const uint8_t generation)
+    explicit ID(const uint32_t index, const uint8_t generation)
     {
         m_value = (generation << GENERATION_NUMBER_SHIFT) | index;
     }
@@ -39,8 +40,23 @@ public:
         return m_value != INVALID;
     }
 
+    explicit operator bool() const
+    {
+        return IsValid();
+    }
+
 private:
     uint32_t m_value = INVALID;
 };
+
+// Tag dispatching
+
+struct BodyIDTag {};
+struct ColliderIDTag {};
+struct ShapeIDTag {};
+
+using BodyID = ID<BodyIDTag>;
+using ColliderID = ID<ColliderIDTag>;
+using ShapeID = ID<ShapeIDTag>;
 
 END_NAMESPACE_KAYOU
