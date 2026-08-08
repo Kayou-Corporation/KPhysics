@@ -16,10 +16,12 @@ int main()
 {
     PhysicsWorld* world = new PhysicsWorld();
     BodyID id = world->CreateBody(Vec3(0.f), QuatIdentity(), 10.f);
-    if (!id.IsValid())
+    if (!id)
         return -1;
 
-    world->AddSphereCollider(id, Vec3(0.f), QuatIdentity(), 1.f);
+    ColliderID collID = world->AddSphereCollider(id, Vec3(0.f), QuatIdentity(), 1.f);
+    if (!collID)
+        return -1;
 
     world->AddLinearImpulse(id, Vec3(2.f, 20.f, 4.f));
 
@@ -30,7 +32,8 @@ int main()
         std::cout << pos.x << " " << pos.y << " " << pos.z << '\n';
     }
 
-    world->DestroyBody(id);
+    world->DestroyCollider(collID);
+    world->DestroyBody(id); // DestroyBody also destroys all the body's attached colliders
     delete world;
     return 0;
 }
