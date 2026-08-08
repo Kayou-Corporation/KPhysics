@@ -90,7 +90,7 @@ public:
     explicit BodyStorage(const uint32_t capacity)
         : transforms(capacity), velocities(capacity), masses(capacity), forces(capacity), capacity{capacity}
     {
-        colliders.reserve(capacity);
+        colliders.resize(capacity);
         generations.reserve(capacity);
     }
 
@@ -104,7 +104,7 @@ public:
     MassStorage masses;
     ForceStorage forces;
 
-    Array<ColliderID> colliders;
+    Array<Array<ColliderID>> colliders;
 
     uint32_t capacity;
 

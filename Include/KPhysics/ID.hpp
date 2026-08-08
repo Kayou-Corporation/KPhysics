@@ -9,10 +9,10 @@ template <typename Tag>
 class ID
 {
 public:
-    static constexpr uint32_t INVALID = 0xFFFFFFFF;
-    static constexpr uint32_t MAX_BODY_ID = 0x00FFFFFF;
-    static constexpr uint8_t MAX_GENERATION = 0xFF;
     static constexpr uint32_t GENERATION_NUMBER_SHIFT = 24;
+    static constexpr uint32_t INVALID = 0xFFFFFFFF;
+    static constexpr uint32_t MAX_BODY_ID = (1u << GENERATION_NUMBER_SHIFT) - 2;
+    static constexpr uint8_t MAX_GENERATION = 0xFF;
 
     ID() = default;
 
@@ -43,6 +43,16 @@ public:
     explicit operator bool() const
     {
         return IsValid();
+    }
+
+    bool operator==(const ID& other) const
+    {
+        return m_value == other.m_value;
+    }
+
+    bool operator!=(const ID& other) const
+    {
+        return m_value != other.m_value;
     }
 
 private:

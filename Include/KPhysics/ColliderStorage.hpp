@@ -17,6 +17,14 @@ enum class ShapeType : uint8_t
 
 struct ShapeReference
 {
+    ShapeReference(): type(ShapeType::NONE)
+    {
+    }
+
+    ShapeReference(ShapeType type, ShapeID id): type(type), index(id)
+    {
+    }
+
     ShapeType type;
     ShapeID index;
 };
