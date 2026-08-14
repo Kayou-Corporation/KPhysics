@@ -119,6 +119,7 @@ public:
 
     std::queue<uint32_t> availableIndices;
     Array<uint8_t> generations;
+    Array<bool> alive; // true means collider is alive, false means it isn't
 
     //Array<MaterialID> materials; later
 };

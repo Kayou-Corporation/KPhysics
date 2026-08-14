@@ -53,6 +53,7 @@ BodyID PhysicsWorld::CreateBody(const Vec3& position, const Quat& rotation, floa
         m_bodyStorage.forces.torques.emplace_back();
 
         m_bodyStorage.generations.push_back(0);
+        m_bodyStorage.alive.emplace_back();
     }
 
     m_bodyStorage.transforms.positions[index] = position;
@@ -68,6 +69,8 @@ BodyID PhysicsWorld::CreateBody(const Vec3& position, const Quat& rotation, floa
     m_bodyStorage.forces.forces[index] = Vec3(0.0f);
     m_bodyStorage.forces.torques[index] = Vec3(0.0f);
 
+    m_bodyStorage.alive[index] = true;
+
     return BodyID(index, m_bodyStorage.generations[index]);
 }
 
@@ -79,11 +82,17 @@ void PhysicsWorld::DestroyBody(BodyID& bodyID)
     const uint32_t index = bodyID.Index();
     const uint8_t generation = bodyID.Generation();
 
-    for (ColliderID colliderID : m_bodyStorage.colliders[index])
+    const Array<ColliderID>& colliders = m_bodyStorage.colliders[index];
+
+    while (!colliders.empty())
+    {
+        ColliderID colliderID = colliders.back();
         DestroyCollider(colliderID);
+    }
 
     m_bodyStorage.availableIndices.push(index);
     m_bodyStorage.generations[index] = (generation + 1) & 0xFF;
+    m_bodyStorage.alive[index] = false;
 
     bodyID = BodyID(BodyID::INVALID);
 }
@@ -117,7 +126,6 @@ ColliderID PhysicsWorld::AddSphereCollider(const BodyID& bodyID, const Vec3& pos
         }
 
         m_colliderStorage.spheres.radii.emplace_back();
-        m_colliderStorage.shapes.emplace_back();
 
         m_colliderStorage.spheres.generations.push_back(0);
     }
@@ -207,6 +215,7 @@ ColliderID PhysicsWorld::AddCapsuleCollider(const BodyID& bodyID, const Vec3& po
         }
 
         m_colliderStorage.capsules.radii.emplace_back();
+        m_colliderStorage.capsules.halfHeights.emplace_back();
         m_colliderStorage.shapes.emplace_back();
 
         m_colliderStorage.capsules.generations.push_back(0);
@@ -247,10 +256,11 @@ void PhysicsWorld::DestroyCollider(ColliderID& colliderID)
         break;
     }
 
-    m_colliderStorage.shapes[colliderID.Index()] = ShapeReference(ShapeType::NONE, ShapeID(ShapeID::INVALID));
+    m_colliderStorage.shapes[index] = ShapeReference(ShapeType::NONE, ShapeID(ShapeID::INVALID));
 
     m_colliderStorage.availableIndices.push(index);
     m_colliderStorage.generations[index] = (generation + 1) & 0xFF;
+    m_colliderStorage.alive[index] = false;
 
     const BodyID bodyID =m_colliderStorage.bodies[index];
     std::vector<ColliderID>& colliders = m_bodyStorage.colliders[bodyID.Index()];
@@ -416,12 +426,18 @@ ColliderID PhysicsWorld::AddCollider(const BodyID bodyID, const Vec3& positionOf
         m_colliderStorage.localRotations.emplace_back();
 
         m_colliderStorage.generations.push_back(0);
+        m_colliderStorage.alive.emplace_back();
+
+        m_colliderStorage.shapes.emplace_back();
     }
 
     m_colliderStorage.bodies[index] = bodyID;
 
     m_colliderStorage.localPositions[index] = positionOffset;
     m_colliderStorage.localRotations[index] = rotationOffset;
+
+    m_colliderStorage.alive[index] = true;
+    m_colliderStorage.shapes[index] = ShapeReference(ShapeType::NONE, ShapeID(ShapeID::INVALID));
 
     const ColliderID colliderID = ColliderID(index, m_colliderStorage.generations[index]);
     m_bodyStorage.colliders[bodyID.Index()].push_back(colliderID);
@@ -478,7 +494,7 @@ bool PhysicsWorld::IsValid(const BodyID& bodyID) const
     if (index >= static_cast<uint32_t>(m_bodyStorage.generations.size()))
         return false;
 
-    return m_bodyStorage.generations[index] == bodyID.Generation();
+    return m_bodyStorage.generations[index] == bodyID.Generation() && m_bodyStorage.alive[index];
 }
 
 bool PhysicsWorld::IsValid(const ColliderID& colliderID) const
@@ -491,7 +507,7 @@ bool PhysicsWorld::IsValid(const ColliderID& colliderID) const
     if (index >= static_cast<uint32_t>(m_colliderStorage.generations.size()))
         return false;
 
-    return m_colliderStorage.generations[index] == colliderID.Generation();
+    return m_colliderStorage.generations[index] == colliderID.Generation() && m_colliderStorage.alive[index];
 }
 
 END_NAMESPACE_KAYOU

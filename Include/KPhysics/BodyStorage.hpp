@@ -110,9 +110,9 @@ public:
 
     std::queue<uint32_t> availableIndices;
     Array<uint8_t> generations;
+    Array<bool> alive; // true means body is alive, false means it isn't
 
     //Array<BodyFlags> flags;
-    //Array<ColliderID> colliders;
 };
 
 END_NAMESPACE_KAYOU
